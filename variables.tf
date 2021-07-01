@@ -1,4 +1,11 @@
-variable "example" {
-  description = "Example variable"
-  default     = "hello world"
+variable "iam_source_json_url" {
+  type        = string
+  description = "IAM source json policy to download"
+  default     = null
+}
+
+variable "iam_policy_statements" {
+  type        = list(any)
+  description = "IAM policy"
+  default     = []
 }
