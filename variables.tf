@@ -6,6 +6,6 @@ variable "iam_source_json_url" {
 
 variable "iam_policy_statements" {
   type        = list(any)
-  description = "IAM policy"
+  description = "List of IAM policy statements"
   default     = []
 }
