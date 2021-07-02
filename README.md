@@ -100,7 +100,7 @@ For automated tests of the complete example using [bats](https://github.com/bats
 (which tests and deploys the example on AWS), see [test](test).
 
 ```hcl
-module "example" {
+module "iam_policy" {
   source  = "git::https://github.com/cloudposse/terraform-aws-iam-policy.git?ref=master"
   example = "Hello world!"
 }
@@ -183,7 +183,7 @@ Available targets:
 
 | Name | Description |
 |------|-------------|
-| <a name="output_json"></a> [json](#output\_json) | JSON body of the iam policy document |
+| <a name="output_json"></a> [json](#output\_json) | JSON body of the IAM policy document |
 <!-- markdownlint-restore -->
 
 

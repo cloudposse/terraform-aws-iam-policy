@@ -53,5 +53,5 @@
 
 | Name | Description |
 |------|-------------|
-| <a name="output_json"></a> [json](#output\_json) | JSON body of the iam policy document |
+| <a name="output_json"></a> [json](#output\_json) | JSON body of the IAM policy document |
 <!-- markdownlint-restore -->
