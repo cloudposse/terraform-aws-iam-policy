@@ -72,7 +72,7 @@ usage: |-
   (which tests and deploys the example on AWS), see [test](test).
 
   ```hcl
-  module "example" {
+  module "iam_policy" {
     source  = "git::https://github.com/cloudposse/terraform-aws-iam-policy.git?ref=master"
     example = "Hello world!"
   }
