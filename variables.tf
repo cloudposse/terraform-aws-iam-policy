@@ -4,8 +4,9 @@ variable "iam_source_json_url" {
   default     = null
 }
 
+# Note: cannot be a list(any) as terraform complains
 variable "iam_policy_statements" {
-  type        = list(any)
+  type        = any
   description = "List of IAM policy statements to use in the policy. This can be used with or instead of the `var.iam_source_json_url`."
   default     = []
 }

@@ -101,8 +101,47 @@ For automated tests of the complete example using [bats](https://github.com/bats
 
 ```hcl
 module "iam_policy" {
-  source  = "git::https://github.com/cloudposse/terraform-aws-iam-policy.git?ref=master"
-  example = "Hello world!"
+  source  = "cloudposse/iam-policy/aws"
+  version = "0.1.0"
+
+  iam_policy_statements = [
+    {
+      sid        = "ListMyBucket"
+      effect     = "Allow"
+      actions    = ["s3:ListBucket"]
+      resources  = ["arn:aws:s3:::test"]
+      conditions = []
+    },
+    {
+      sid        = "WriteMyBucket"
+      effect     = "Allow"
+      actions    = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
+      resources  = ["arn:aws:s3:::test/*"]
+      conditions = []
+    },
+  ]
+}
+
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "example" {
+  name               = "hello_role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+
+  inline_policy {
+    name = "test_policy"
+
+    policy = module.iam_policy.json
+  }
 }
 ```
 
@@ -135,14 +174,14 @@ Available targets:
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.0 |
-| <a name="requirement_http"></a> [http](#requirement\_http) | >= 2.2 |
+| <a name="requirement_http"></a> [http](#requirement\_http) | >= 2.1 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.0 |
-| <a name="provider_http"></a> [http](#provider\_http) | >= 2.2 |
+| <a name="provider_http"></a> [http](#provider\_http) | >= 2.1 |
 
 ## Modules
 
@@ -167,7 +206,7 @@ Available targets:
 | <a name="input_delimiter"></a> [delimiter](#input\_delimiter) | Delimiter to be used between `namespace`, `environment`, `stage`, `name` and `attributes`.<br>Defaults to `-` (hyphen). Set to `""` to use no delimiter at all. | `string` | `null` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment, e.g. 'uw2', 'us-west-2', OR 'prod', 'staging', 'dev', 'UAT' | `string` | `null` | no |
-| <a name="input_iam_policy_statements"></a> [iam\_policy\_statements](#input\_iam\_policy\_statements) | List of IAM policy statements to use in the policy. This can be used with or instead of the `var.iam_source_json_url`. | `list(any)` | `[]` | no |
+| <a name="input_iam_policy_statements"></a> [iam\_policy\_statements](#input\_iam\_policy\_statements) | List of IAM policy statements to use in the policy. This can be used with or instead of the `var.iam_source_json_url`. | `any` | `[]` | no |
 | <a name="input_iam_source_json_url"></a> [iam\_source\_json\_url](#input\_iam\_source\_json\_url) | IAM source JSON policy to download and use as `source_json` argument. These can be used as a base to append using `var.iam_policy_statements`. This is useful when using a 3rd party service that provides their own policy. This can be used with or instead of the `var.iam_policy_statements`. | `string` | `null` | no |
 | <a name="input_id_length_limit"></a> [id\_length\_limit](#input\_id\_length\_limit) | Limit `id` to this many characters (minimum 6).<br>Set to `0` for unlimited length.<br>Set to `null` for default, which is `0`.<br>Does not affect `id_full`. | `number` | `null` | no |
 | <a name="input_label_key_case"></a> [label\_key\_case](#input\_label\_key\_case) | The letter case of label keys (`tag` names) (i.e. `name`, `namespace`, `environment`, `stage`, `attributes`) to use in `tags`.<br>Possible values: `lower`, `title`, `upper`.<br>Default value: `title`. | `string` | `null` | no |

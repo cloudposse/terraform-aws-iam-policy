@@ -67,14 +67,53 @@ description: |-
 # How to use this module. Should be an easy example to copy and paste.
 usage: |-
   For a complete example, see [examples/complete](examples/complete).
-  
+
   For automated tests of the complete example using [bats](https://github.com/bats-core/bats-core) and [Terratest](https://github.com/gruntwork-io/terratest)
   (which tests and deploys the example on AWS), see [test](test).
 
   ```hcl
   module "iam_policy" {
-    source  = "git::https://github.com/cloudposse/terraform-aws-iam-policy.git?ref=master"
-    example = "Hello world!"
+    source  = "cloudposse/iam-policy/aws"
+    version = "0.1.0"
+
+    iam_policy_statements = [
+      {
+        sid        = "ListMyBucket"
+        effect     = "Allow"
+        actions    = ["s3:ListBucket"]
+        resources  = ["arn:aws:s3:::test"]
+        conditions = []
+      },
+      {
+        sid        = "WriteMyBucket"
+        effect     = "Allow"
+        actions    = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
+        resources  = ["arn:aws:s3:::test/*"]
+        conditions = []
+      },
+    ]
+  }
+
+  data "aws_iam_policy_document" "assume_role" {
+    statement {
+      actions = ["sts:AssumeRole"]
+
+      principals {
+        type        = "Service"
+        identifiers = ["ec2.amazonaws.com"]
+      }
+    }
+  }
+
+  resource "aws_iam_role" "example" {
+    name               = "hello_role"
+    assume_role_policy = data.aws_iam_policy_document.assume_role.json
+
+    inline_policy {
+      name = "test_policy"
+
+      policy = module.iam_policy.json
+    }
   }
   ```
 
