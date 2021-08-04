@@ -14,7 +14,7 @@ data "http" "iam_source_json_url" {
 data "aws_iam_policy_document" "this" {
   count = local.enabled ? 1 : 0
 
-  source_json = var.iam_source_json_url != null ? data.http.iam_source_json_url[0].body : null
+  source_json = var.iam_source_json_url != null ? data.http.iam_source_json_url[0].body : var.iam_source_json
 
   dynamic "statement" {
     for_each = var.iam_policy_statements
