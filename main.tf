@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "this" {
 
         content {
           type        = principals.value.type
-          identifiers = condiprincipalstion.value.identifiers
+          identifiers = principals.value.identifiers
         }
       }
 
