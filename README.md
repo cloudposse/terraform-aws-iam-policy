@@ -102,7 +102,8 @@ For automated tests of the complete example using [bats](https://github.com/bats
 ```hcl
 module "iam_policy" {
   source  = "cloudposse/iam-policy/aws"
-  version = "0.1.0"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   iam_policy_statements = [
     {
