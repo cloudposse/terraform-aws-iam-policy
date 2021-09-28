@@ -74,7 +74,8 @@ usage: |-
   ```hcl
   module "iam_policy" {
     source  = "cloudposse/iam-policy/aws"
-    version = "0.1.0"
+    # Cloud Posse recommends pinning every module to a specific version
+    # version = "x.x.x"
 
     iam_policy_statements = [
       {
