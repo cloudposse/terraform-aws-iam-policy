@@ -1,7 +1,7 @@
 locals {
   enabled = module.this.enabled
-  
-  iam_policy_statements = [ for statement in var.iam_policy_statements : statement if length(statement) > 0]
+
+  iam_policy_statements = [for statement in var.iam_policy_statements : statement if length(statement) > 0]
 }
 
 data "http" "iam_source_json_url" {
