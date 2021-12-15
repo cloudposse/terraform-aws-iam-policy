@@ -59,3 +59,12 @@ data "aws_iam_policy_document" "this" {
     }
   }
 }
+
+resource "aws_iam_policy" "policy" {
+  count = local.enabled && var.create_iam_policy ? 1 : 0
+
+  name        = module.this.id
+  description = var.description
+  policy      = join("", data.aws_iam_policy_document.this.*.json)
+  tags        = module.this.tags
+}

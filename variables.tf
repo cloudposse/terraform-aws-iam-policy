@@ -16,3 +16,15 @@ variable "iam_policy_statements" {
   description = "List of IAM policy statements to use in the policy. This can be used with or instead of the `var.iam_source_json_url`."
   default     = []
 }
+
+variable "description" {
+  type        = string
+  description = "Description of IAM policy"
+  default     = ""
+}
+
+variable "create_iam_policy" {
+  type        = bool
+  description = "If set to true will create IAM policy in AWS"
+  default     = false
+}
