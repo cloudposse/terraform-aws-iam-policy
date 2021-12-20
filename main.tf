@@ -17,7 +17,8 @@ data "aws_iam_policy_document" "this" {
   source_json = var.iam_source_json_url != null ? data.http.iam_source_json_url[0].body : var.iam_source_json
 
   dynamic "statement" {
-    for_each = flatten(var.iam_policy_statements)
+    # Only flatten if a list(string) is passed in, otherwise use the map var as-is
+    for_each = try(flatten(var.iam_policy_statements), var.iam_policy_statements)
 
     content {
       sid    = lookup(statement.value, "sid", null)
