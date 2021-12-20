@@ -61,7 +61,7 @@ data "aws_iam_policy_document" "this" {
   }
 }
 
-resource "aws_iam_policy" "policy" {
+resource "aws_iam_policy" "default" {
   count = local.enabled && var.iam_policy_enabled ? 1 : 0
 
   name        = module.this.id

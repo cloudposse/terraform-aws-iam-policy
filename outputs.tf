@@ -5,5 +5,5 @@ output "json" {
 
 output "policy_arn" {
   description = "ARN of created IAM policy"
-  value       = join("", resource.aws_iam_policy.policy.*.arn)
+  value       = join("", aws_iam_policy.default.*.arn)
 }
