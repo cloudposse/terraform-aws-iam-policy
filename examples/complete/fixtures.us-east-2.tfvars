@@ -8,7 +8,7 @@ stage = "test"
 
 name = "example"
 
-iam_source_json_url = "https://raw.githubusercontent.com/awsdocs/amazon-lookoutmetrics-developer-guide/main/sample-policies/datasource-s3.json"
+iam_source_json_url = "https://raw.githubusercontent.com/awsdocs/amazon-lookoutmetrics-developer-guide/bf564cc29faab95d4171e0edec99e4165e55e954/sample-policies/datasource-s3.json"
 
 # source: https://raw.githubusercontent.com/awsdocs/amazon-lookoutmetrics-developer-guide/main/sample-policies/datasource-s3.json
 # {
