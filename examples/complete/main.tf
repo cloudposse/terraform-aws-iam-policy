@@ -5,9 +5,6 @@ provider "aws" {
 module "iam_policy" {
   source = "../../"
 
-  # source  = "cloudposse/iam-policy/aws"
-  # version = "0.1.0"
-
   iam_source_json_url = var.iam_source_json_url
 
   iam_policy_statements = var.iam_policy_statements

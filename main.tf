@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "this" {
     for_each = try(flatten(var.iam_policy_statements), var.iam_policy_statements)
 
     content {
-      sid    = lookup(statement.value, "sid", null)
+      sid    = lookup(statement.value, "sid", statement.key)
       effect = lookup(statement.value, "effect", null)
 
       actions     = lookup(statement.value, "actions", null)
