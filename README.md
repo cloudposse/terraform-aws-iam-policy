@@ -105,22 +105,20 @@ module "iam_policy" {
   # Cloud Posse recommends pinning every module to a specific version
   # version = "x.x.x"
 
-  iam_policy_statements = [
-    {
-      sid        = "ListMyBucket"
+  iam_policy_statements = {
+    ListMyBucket = {
       effect     = "Allow"
       actions    = ["s3:ListBucket"]
       resources  = ["arn:aws:s3:::test"]
       conditions = []
-    },
-    {
-      sid        = "WriteMyBucket"
+    }
+    WriteMyBucket = {
       effect     = "Allow"
       actions    = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
       resources  = ["arn:aws:s3:::test/*"]
       conditions = []
     },
-  ]
+  }
 }
 
 data "aws_iam_policy_document" "assume_role" {
