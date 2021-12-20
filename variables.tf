@@ -20,10 +20,10 @@ variable "iam_policy_statements" {
 variable "description" {
   type        = string
   description = "Description of IAM policy"
-  default     = ""
+  default     = null
 }
 
-variable "create_iam_policy" {
+variable "iam_policy_enabled" {
   type        = bool
   description = "If set to true will create IAM policy in AWS"
   default     = false
