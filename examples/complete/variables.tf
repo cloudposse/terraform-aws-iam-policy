@@ -11,5 +11,5 @@ variable "iam_source_json_url" {
 variable "iam_policy_statements" {
   type        = any
   description = "List of IAM policy statements to use in the policy. This can be used with or instead of the `var.iam_source_json_url`."
-  default     = []
+  default     = {}
 }

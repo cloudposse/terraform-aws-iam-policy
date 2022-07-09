@@ -1,10 +1,15 @@
 terraform {
-  required_version = ">= 0.12.26"
+  required_version = ">= 0.13"
 
   required_providers {
-    local = {
-      source  = "hashicorp/local"
-      version = ">= 1.2"
+    # Update these to reflect the actual requirements of your module
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 3.0"
+    }
+    http = {
+      source  = "hashicorp/http"
+      version = ">= 2.1"
     }
   }
 }
