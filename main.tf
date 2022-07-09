@@ -6,7 +6,7 @@ locals {
   iam_override_policy_documents = var.iam_override_policy_documents == null || var.iam_override_policy_documents == [] ? [] : var.iam_override_policy_documents
   iam_source_policy_documents   = var.iam_source_policy_documents == null || var.iam_source_policy_documents == [] ? [] : var.iam_source_policy_documents
 
-  source_policy_documents = concat([local.iam_source_json_url_body], local.iam_source_policy_documents)
+  source_policy_documents = compact(concat([local.iam_source_json_url_body], local.iam_source_policy_documents))
 }
 
 data "http" "iam_source_json_url" {
