@@ -2,6 +2,11 @@ locals {
   enabled = module.this.enabled
 
   iam_source_json_url_body = var.iam_source_json_url != null || var.iam_source_json_url == "" ? data.http.iam_source_json_url[0].body : ""
+
+  iam_override_policy_documents = var.iam_override_policy_documents == null || var.iam_override_policy_documents == [] ? [] : var.iam_override_policy_documents
+  iam_source_policy_documents   = var.iam_source_policy_documents == null || var.iam_source_policy_documents == [] ? [] : var.iam_source_policy_documents
+
+  source_policy_documents = concat([local.iam_source_json_url_body], local.iam_source_policy_documents)
 }
 
 data "http" "iam_source_json_url" {
@@ -18,8 +23,8 @@ data "aws_iam_policy_document" "this" {
 
   policy_id = var.iam_policy_id
 
-  override_policy_documents = var.iam_override_policy_documents
-  source_policy_documents   = concat([local.iam_source_json_url_body], var.iam_source_policy_documents)
+  override_policy_documents = local.iam_override_policy_documents != [] ? local.iam_override_policy_documents : null
+  source_policy_documents   = local.source_policy_documents != [] ? local.source_policy_documents : null
 
   dynamic "statement" {
     # Only flatten if a list(string) is passed in, otherwise use the map var as-is
