@@ -1,5 +1,7 @@
 locals {
   enabled = module.this.enabled
+
+  iam_source_json_url_body = var.iam_source_json_url != null || var.iam_source_json_url == "" ? data.http.iam_source_json_url[0].body : ""
 }
 
 data "http" "iam_source_json_url" {
@@ -17,7 +19,7 @@ data "aws_iam_policy_document" "this" {
   policy_id = var.iam_policy_id
 
   override_policy_documents = var.iam_override_policy_documents
-  source_policy_documents   = concat(join("", data.http.iam_source_json_url.*.body), var.iam_source_policy_documents)
+  source_policy_documents   = concat([local.iam_source_json_url_body], var.iam_source_policy_documents)
 
   dynamic "statement" {
     # Only flatten if a list(string) is passed in, otherwise use the map var as-is
