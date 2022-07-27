@@ -41,5 +41,4 @@ func TestExamplesComplete(t *testing.T) {
 
 	// Verify we're getting back the outputs we expect
 	assert.Greater(t, len(jsonMap), 0)
-	assert.Equalf(t, "", jsonMap, "Json output did not match expected value")
 }
