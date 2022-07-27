@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.13"
+  required_version = ">= 1.0"
 
   required_providers {
     # Update these to reflect the actual requirements of your module
@@ -9,7 +9,7 @@ terraform {
     }
     http = {
       source  = "hashicorp/http"
-      version = ">= 2.1"
+      version = ">= 3.0"
     }
   }
 }
