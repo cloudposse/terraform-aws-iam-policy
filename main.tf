@@ -1,7 +1,7 @@
 locals {
   enabled = module.this.enabled
 
-  iam_source_json_url_body = var.iam_source_json_url != null || var.iam_source_json_url == "" ? data.http.iam_source_json_url[0].body : ""
+  iam_source_json_url_body = var.iam_source_json_url != null || var.iam_source_json_url == "" ? data.http.iam_source_json_url[0].response_body : ""
 
   iam_override_policy_documents = var.iam_override_policy_documents == null || var.iam_override_policy_documents == [] ? [] : var.iam_override_policy_documents
   iam_source_policy_documents   = var.iam_source_policy_documents == null || var.iam_source_policy_documents == [] ? [] : var.iam_source_policy_documents
