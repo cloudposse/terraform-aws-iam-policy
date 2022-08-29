@@ -60,12 +60,24 @@ iam_policy_statements = {
     effect     = "Allow"
     actions    = ["s3:ListBucket"]
     resources  = ["arn:aws:s3:::test"]
-    conditions = []
+    conditions = [
+      {
+        test     = "StringLike"
+        variable = "cloudwatch:namespace"
+        values   = ["x-*"]
+      },
+    ]
   }
   WriteMyBucket = {
     effect     = "Allow"
     actions    = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
     resources  = ["arn:aws:s3:::test/*"]
-    conditions = []
+    conditions = [
+      {
+        test     = "StringLike"
+        variable = "cloudwatch:namespace"
+        values   = ["x-*"]
+      },
+    ]
   }
 }
