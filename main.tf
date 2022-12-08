@@ -74,7 +74,7 @@ data "aws_iam_policy_document" "this" {
 resource "aws_iam_policy" "default" {
   count = local.enabled && var.iam_policy_enabled ? 1 : 0
 
-  name        = module.this.id
+  name        = var.iam_policy_name == null ? module.this.id : var.iam_policy_name
   description = var.description
   policy      = join("", data.aws_iam_policy_document.this.*.json)
   tags        = module.this.tags

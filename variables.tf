@@ -39,3 +39,9 @@ variable "iam_override_policy_documents" {
   description = "List of IAM policy documents that are merged together into the exported document. In merging, statements with non-blank sids will override statements with the same sid from earlier documents in the list. Statements with non-blank sids will also override statements with the same sid from documents provided in the `source_json` and `source_policy_documents` arguments. Non-overriding statements will be added to the exported document."
   default     = null
 }
+
+variable "iam_policy_name" {
+  type        = string
+  description = "Name of IAM policy"
+  default     = null
+}

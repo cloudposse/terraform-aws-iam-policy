@@ -11,8 +11,8 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0 |
-| <a name="provider_http"></a> [http](#provider\_http) | >= 3.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.45.0 |
+| <a name="provider_http"></a> [http](#provider\_http) | 3.2.1 |
 
 ## Modules
 
@@ -43,6 +43,7 @@
 | <a name="input_iam_override_policy_documents"></a> [iam\_override\_policy\_documents](#input\_iam\_override\_policy\_documents) | List of IAM policy documents that are merged together into the exported document. In merging, statements with non-blank sids will override statements with the same sid from earlier documents in the list. Statements with non-blank sids will also override statements with the same sid from documents provided in the `source_json` and `source_policy_documents` arguments. Non-overriding statements will be added to the exported document. | `list(string)` | `null` | no |
 | <a name="input_iam_policy_enabled"></a> [iam\_policy\_enabled](#input\_iam\_policy\_enabled) | If set to true will create IAM policy in AWS | `bool` | `false` | no |
 | <a name="input_iam_policy_id"></a> [iam\_policy\_id](#input\_iam\_policy\_id) | ID for the policy document. | `string` | `null` | no |
+| <a name="input_iam_policy_name"></a> [iam\_policy\_name](#input\_iam\_policy\_name) | Name of IAM policy | `string` | `null` | no |
 | <a name="input_iam_policy_statements"></a> [iam\_policy\_statements](#input\_iam\_policy\_statements) | Map of IAM policy statements to use in the policy. This can be used with or instead of the `var.iam_source_json_url`. | `any` | `{}` | no |
 | <a name="input_iam_source_json_url"></a> [iam\_source\_json\_url](#input\_iam\_source\_json\_url) | IAM source JSON policy to download and use as `source_json` argument. This is useful when using a 3rd party service that provides their own policy. This can be used with or instead of the `var.iam_policy_statements`. | `string` | `null` | no |
 | <a name="input_iam_source_policy_documents"></a> [iam\_source\_policy\_documents](#input\_iam\_source\_policy\_documents) | List of IAM policy documents that are merged together into the exported document. Statements defined in `source_policy_documents` or `source_json` must have unique sids. Statements with the same sid from documents assigned to the `override_json` and `override_policy_documents` arguments will override source statements. | `list(string)` | `null` | no |
