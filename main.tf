@@ -27,21 +27,20 @@ data "aws_iam_policy_document" "this" {
   source_policy_documents   = local.source_policy_documents != [] ? local.source_policy_documents : null
 
   dynamic "statement" {
-    # Only flatten if a list(string) is passed in, otherwise use the map var as-is
-    for_each = try(flatten(var.iam_policy_statements), var.iam_policy_statements)
+    for_each = var.iam_policy_statements
 
     content {
-      sid    = lookup(statement.value, "sid", statement.key)
-      effect = lookup(statement.value, "effect", null)
+      sid    = coalesce(statement.value.sid, statement.key)
+      effect = statement.value.effect
 
-      actions     = lookup(statement.value, "actions", null)
-      not_actions = lookup(statement.value, "not_actions", null)
+      actions     = statement.value.actions
+      not_actions = statement.value.not_actions
 
-      resources     = lookup(statement.value, "resources", null)
-      not_resources = lookup(statement.value, "not_resources", null)
+      resources     = statement.value.resources
+      not_resources = statement.value.not_resources
 
       dynamic "principals" {
-        for_each = lookup(statement.value, "principals", [])
+        for_each = coalesce(statement.value.principals, [])
 
         content {
           type        = principals.value.type
@@ -50,7 +49,7 @@ data "aws_iam_policy_document" "this" {
       }
 
       dynamic "not_principals" {
-        for_each = lookup(statement.value, "not_principals", [])
+        for_each = coalesce(statement.value.not_principals, [])
 
         content {
           type        = not_principals.value.type
@@ -59,7 +58,7 @@ data "aws_iam_policy_document" "this" {
       }
 
       dynamic "condition" {
-        for_each = lookup(statement.value, "conditions", [])
+        for_each = coalesce(statement.value.conditions, [])
 
         content {
           test     = condition.value.test

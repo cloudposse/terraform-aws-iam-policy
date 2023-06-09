@@ -5,27 +5,27 @@ variable "iam_source_json_url" {
 }
 
 variable "iam_policy_statements" {
-  type = object({
-    sid           = optional(string, "")
-    effect        = optional(string, "")
-    actions       = optional(list(string), [])
-    not_actions   = optional(list(string), [])
-    resources     = optional(list(string), [])
-    not_resources = optional(list(string), [])
+  type = map(object({
+    sid           = optional(string, null)
+    effect        = optional(string, null)
+    actions       = optional(list(string), null)
+    not_actions   = optional(list(string), null)
+    resources     = optional(list(string), null)
+    not_resources = optional(list(string), null)
     conditions = optional(list(object({
       test     = string
       variable = string
       values   = list(string)
-    })), [])
+    })), null)
     principals = optional(list(object({
       type        = string
       identifiers = list(string)
-    })), [])
+    })), null)
     not_principals = optional(list(object({
       type        = string
       identifiers = list(string)
-    })), [])
-  })
+    })), null)
+  }))
   description = "Map of IAM policy statements to use in the policy. This can be used with or instead of the `var.iam_source_json_url`."
   default     = {}
 }
