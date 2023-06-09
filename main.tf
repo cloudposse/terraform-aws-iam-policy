@@ -1,12 +1,23 @@
 locals {
   enabled = module.this.enabled
 
-  iam_source_json_url_body = var.iam_source_json_url != null || var.iam_source_json_url == "" ? data.http.iam_source_json_url[0].response_body : ""
+  iam_source_json_url_body = try(length(var.iam_source_json_url), 0) > 0 ? one(data.http.iam_source_json_url[*].response_body) : null
 
-  iam_override_policy_documents = var.iam_override_policy_documents == null || var.iam_override_policy_documents == [] ? [] : var.iam_override_policy_documents
-  iam_source_policy_documents   = var.iam_source_policy_documents == null || var.iam_source_policy_documents == [] ? [] : var.iam_source_policy_documents
+  iam_override_policy_documents = try(length(var.iam_override_policy_documents), 0) > 0 ? var.iam_override_policy_documents : []
+  iam_source_policy_documents   = try(length(var.iam_source_policy_documents), 0) > 0 ? var.iam_source_policy_documents : []
 
   source_policy_documents = compact(concat([local.iam_source_json_url_body], local.iam_source_policy_documents))
+
+  deprecated_statements_with_sid = var.iam_policy_statements == null ? [] : [
+    for k, v in var.iam_policy_statements : merge(v, v.sid == null ? { sid = k } : {})
+  ]
+  deprecated_policy = {
+    version    = null
+    policy_id  = var.iam_policy_id
+    statements = local.deprecated_statements_with_sid
+  }
+
+  policy = var.iam_policy == null ? local.deprecated_policy : var.iam_policy
 }
 
 data "http" "iam_source_json_url" {
@@ -21,17 +32,17 @@ data "http" "iam_source_json_url" {
 data "aws_iam_policy_document" "this" {
   count = local.enabled ? 1 : 0
 
-  policy_id = var.iam_policy_id
-  version   = var.iam_policy_version
+  policy_id = local.policy.policy_id
+  version   = local.policy.version
 
-  override_policy_documents = local.iam_override_policy_documents != [] ? local.iam_override_policy_documents : null
-  source_policy_documents   = local.source_policy_documents != [] ? local.source_policy_documents : null
+  override_policy_documents = local.iam_override_policy_documents
+  source_policy_documents   = local.source_policy_documents
 
   dynamic "statement" {
-    for_each = var.iam_policy_statements
+    for_each = local.policy.statements
 
     content {
-      sid    = coalesce(statement.value.sid, statement.key)
+      sid    = statement.value.sid
       effect = statement.value.effect
 
       actions     = statement.value.actions
@@ -41,7 +52,7 @@ data "aws_iam_policy_document" "this" {
       not_resources = statement.value.not_resources
 
       dynamic "principals" {
-        for_each = coalesce(statement.value.principals, [])
+        for_each = statement.value.principals
 
         content {
           type        = principals.value.type
@@ -50,7 +61,7 @@ data "aws_iam_policy_document" "this" {
       }
 
       dynamic "not_principals" {
-        for_each = coalesce(statement.value.not_principals, [])
+        for_each = statement.value.not_principals
 
         content {
           type        = not_principals.value.type
@@ -59,7 +70,7 @@ data "aws_iam_policy_document" "this" {
       }
 
       dynamic "condition" {
-        for_each = coalesce(statement.value.conditions, [])
+        for_each = statement.value.conditions
 
         content {
           test     = condition.value.test
@@ -69,6 +80,17 @@ data "aws_iam_policy_document" "this" {
       }
     }
   }
+
+  lifecycle {
+    precondition {
+      condition     = var.iam_policy_statements == null || var.iam_policy == null
+      error_message = "Only 1 of var.iam_policy and var.iam_policy_statments may be used, preferably var.iam_policy."
+    }
+    precondition {
+      condition     = var.iam_policy_statements != null || var.iam_policy != null
+      error_message = "Exactly 1 of var.iam_policy and var.iam_policy_statments may be used, preferably var.iam_policy."
+    }
+  }
 }
 
 resource "aws_iam_policy" "default" {
@@ -76,6 +98,6 @@ resource "aws_iam_policy" "default" {
 
   name        = module.this.id
   description = var.description
-  policy      = join("", data.aws_iam_policy_document.this.*.json)
+  policy      = one(data.aws_iam_policy_document.this[*].json)
   tags        = module.this.tags
 }

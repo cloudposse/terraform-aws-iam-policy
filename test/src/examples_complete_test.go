@@ -37,8 +37,14 @@ func TestExamplesComplete(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Run `terraform output` to get the value of an output variable
-	jsonMap := terraform.OutputRequired(t, terraformOptions, "json")
+	jsonPolicy := terraform.OutputRequired(t, terraformOptions, "json")
+	oldJsonPolicy := terraform.OutputRequired(t, terraformOptions, "json")
 
 	// Verify we're getting back the outputs we expect
-	assert.Greater(t, len(jsonMap), 0)
+	assert.Greater(t, len(jsonPolicy), 0)
+	assert.Greater(t, len(oldJsonPolicy), 0)
+	assert.Equal(t, jsonPolicy, oldJsonPolicy, "jsonPolicy and oldJsonPolicy should match")
+
+	expectedPolicy := "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"s3:ListBucket\",\n        \"s3:GetBucketAcl\"\n      ],\n      \"Resource\": [\n        \"arn:aws:s3:::${BucketName}\"\n      ]\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"s3:GetObject\",\n        \"s3:GetBucketAcl\"\n      ],\n      \"Resource\": [\n        \"arn:aws:s3:::${BucketName}/*\"\n      ]\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"kms:Decrypt\",\n        \"kms:GenerateDataKey\"\n      ],\n      \"Resource\": [\n        \"arn:aws:kms:::key/*\"\n      ],\n      \"Condition\": {\n        \"ForAllValues:StringLike\": {\n          \"kms:EncryptionContext:aws:s3:arn\": [\n            \"arn:aws:s3:::${BucketName}\"\n          ],\n          \"kms:ViaService\": [\n            \"s3.${Region}.amazonaws.com\"\n          ]\n        }\n      }\n    },\n    {\n      \"Sid\": \"ListMyBucket\",\n      \"Effect\": \"Allow\",\n      \"Action\": \"s3:ListBucket\",\n      \"Resource\": \"arn:aws:s3:::test\",\n      \"Condition\": {\n        \"StringLike\": {\n          \"cloudwatch:namespace\": \"x-*\"\n        }\n      }\n    },\n    {\n      \"Sid\": \"WriteMyBucket\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"s3:PutObject\",\n        \"s3:GetObject\",\n        \"s3:DeleteObject\"\n      ],\n      \"Resource\": \"arn:aws:s3:::test/*\",\n      \"Condition\": {\n        \"StringLike\": {\n          \"cloudwatch:namespace\": \"x-*\"\n        }\n      }\n    }\n  ]\n}"
+	assert.Equal(t, expectedPolicy, jsonPolicy, "jsonPolicy should match expected policy")
 }
