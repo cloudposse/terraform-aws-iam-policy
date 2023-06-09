@@ -48,6 +48,16 @@ variable "iam_policy_id" {
   default     = null
 }
 
+variable "iam_policy_version" {
+  type        = string
+  description = "IAM policy document version."
+  default     = "2012-10-17"
+  validation {
+    condition     = contains(["2008-10-17", "2012-10-17"], var.iam_policy_version)
+    error_message = "The iam_policy_version valid values are '2008-10-17' or '2012-10-17'."
+  }
+}
+
 variable "iam_source_policy_documents" {
   type        = list(string)
   description = "List of IAM policy documents that are merged together into the exported document. Statements defined in `source_policy_documents` or `source_json` must have unique sids. Statements with the same sid from documents assigned to the `override_json` and `override_policy_documents` arguments will override source statements."

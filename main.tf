@@ -22,6 +22,7 @@ data "aws_iam_policy_document" "this" {
   count = local.enabled ? 1 : 0
 
   policy_id = var.iam_policy_id
+  version   = var.iam_policy_version
 
   override_policy_documents = local.iam_override_policy_documents != [] ? local.iam_override_policy_documents : null
   source_policy_documents   = local.source_policy_documents != [] ? local.source_policy_documents : null
