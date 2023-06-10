@@ -55,6 +55,37 @@ iam_source_json_url = "https://raw.githubusercontent.com/awsdocs/amazon-lookoutm
 #     ]
 # }
 
+iam_policy = {
+  statements = [
+    {
+      sid       = "ListMyBucket"
+      effect    = "Allow"
+      actions   = ["s3:ListBucket"]
+      resources = ["arn:aws:s3:::test"]
+      conditions = [
+        {
+          test     = "StringLike"
+          variable = "cloudwatch:namespace"
+          values   = ["x-*"]
+        },
+      ]
+    },
+    {
+      sid       = "WriteMyBucket"
+      effect    = "Allow"
+      actions   = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
+      resources = ["arn:aws:s3:::test/*"]
+      conditions = [
+        {
+          test     = "StringLike"
+          variable = "cloudwatch:namespace"
+          values   = ["x-*"]
+        },
+      ]
+    }
+  ]
+}
+
 iam_policy_statements = {
   ListMyBucket = {
     effect    = "Allow"
