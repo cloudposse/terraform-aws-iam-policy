@@ -38,7 +38,7 @@ func TestExamplesComplete(t *testing.T) {
 
 	// Run `terraform output` to get the value of an output variable
 	jsonPolicy := terraform.OutputRequired(t, terraformOptions, "json")
-	oldJsonPolicy := terraform.OutputRequired(t, terraformOptions, "json")
+	oldJsonPolicy := terraform.OutputRequired(t, terraformOptions, "deprecated_json")
 
 	// Verify we're getting back the outputs we expect
 	assert.Greater(t, len(jsonPolicy), 0)
