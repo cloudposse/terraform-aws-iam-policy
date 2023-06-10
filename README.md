@@ -105,27 +105,38 @@ module "iam_policy" {
   # Cloud Posse recommends pinning every module to a specific version
   # version = "x.x.x"
 
-  iam_policy_statements = {
-    ListMyBucket = {
-      effect     = "Allow"
-      actions    = ["s3:ListBucket"]
-      resources  = ["arn:aws:s3:::test"]
-      conditions = []
-    }
-    WriteMyBucket = {
-      effect     = "Allow"
-      actions    = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
-      resources  = ["arn:aws:s3:::test/*"]
-      conditions = [
-        {
-          test     = "StringLike"
-          variable = "cloudwatch:namespace"
-          values   = ["x-*"]
-        },
-      ]
-    }
+  iam_policy = {
+    version = "2012-10-17"
+    policy_id = "example"
+    statements = [
+      {
+        sid       = "ListMyBucket"
+        effect    = "Allow"
+        actions   = ["s3:ListBucket"]
+        resources = ["arn:aws:s3:::test"]
+        conditions = [
+          {
+            test     = "StringLike"
+            variable = "cloudwatch:namespace"
+            values   = ["x-*"]
+          },
+        ]
+      },
+      {
+        sid       = "WriteMyBucket"
+        effect    = "Allow"
+        actions   = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
+        resources = ["arn:aws:s3:::test/*"]
+        conditions = [
+          {
+            test     = "StringLike"
+            variable = "cloudwatch:namespace"
+            values   = ["x-*"]
+          },
+        ]
+      }
+    ]
   }
-}
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
