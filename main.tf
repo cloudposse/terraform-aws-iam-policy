@@ -84,11 +84,7 @@ data "aws_iam_policy_document" "this" {
   lifecycle {
     precondition {
       condition     = var.iam_policy_statements == null || var.iam_policy == null
-      error_message = "Only 1 of var.iam_policy and var.iam_policy_statments may be used, preferably var.iam_policy."
-    }
-    precondition {
-      condition     = var.iam_policy_statements != null || var.iam_policy != null
-      error_message = "Exactly 1 of var.iam_policy and var.iam_policy_statments may be used, preferably var.iam_policy."
+      error_message = "Only 1 of var.iam_policy and var.iam_policy_statements may be used, preferably var.iam_policy."
     }
   }
 }
