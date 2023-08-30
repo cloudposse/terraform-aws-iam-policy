@@ -6,18 +6,9 @@ locals {
   iam_override_policy_documents = try(length(var.iam_override_policy_documents), 0) > 0 ? var.iam_override_policy_documents : []
   iam_source_policy_documents   = try(length(var.iam_source_policy_documents), 0) > 0 ? var.iam_source_policy_documents : []
 
-  source_policy_documents = compact(concat([local.iam_source_json_url_body], local.iam_source_policy_documents))
+  source_policy_documents = compact(concat([local.iam_source_json_url_body], data.aws_iam_policy_document.policy[*].json, local.iam_source_policy_documents))
 
-  deprecated_statements_with_sid = var.iam_policy_statements == null ? [] : [
-    for k, v in var.iam_policy_statements : merge(v, v.sid == null ? { sid = k } : {})
-  ]
-  deprecated_policy = {
-    version    = null
-    policy_id  = var.iam_policy_id
-    statements = local.deprecated_statements_with_sid
-  }
-
-  policy = var.iam_policy == null ? local.deprecated_policy : var.iam_policy
+  policy = concat(local.deprecated_policy, var.iam_policy)
 }
 
 data "http" "iam_source_json_url" {
@@ -29,17 +20,14 @@ data "http" "iam_source_json_url" {
   }
 }
 
-data "aws_iam_policy_document" "this" {
-  count = local.enabled ? 1 : 0
+data "aws_iam_policy_document" "policy" {
+  count = local.enabled ? length(local.policy) : 0
 
-  policy_id = local.policy.policy_id
-  version   = local.policy.version
-
-  override_policy_documents = local.iam_override_policy_documents
-  source_policy_documents   = local.source_policy_documents
+  policy_id = local.policy[count.index].policy_id
+  version   = local.policy[count.index].version
 
   dynamic "statement" {
-    for_each = local.policy.statements
+    for_each = local.policy[count.index].statements
 
     content {
       sid    = statement.value.sid
@@ -80,13 +68,13 @@ data "aws_iam_policy_document" "this" {
       }
     }
   }
+}
 
-  lifecycle {
-    precondition {
-      condition     = var.iam_policy_statements == null || var.iam_policy == null
-      error_message = "Only 1 of var.iam_policy and var.iam_policy_statements may be used, preferably var.iam_policy."
-    }
-  }
+data "aws_iam_policy_document" "this" {
+  count = local.enabled ? 1 : 0
+
+  source_policy_documents   = local.source_policy_documents
+  override_policy_documents = local.iam_override_policy_documents
 }
 
 resource "aws_iam_policy" "default" {

@@ -42,23 +42,26 @@ related:
 
 # List any resources helpful for someone to get started. For example, link to the hashicorp documentation or AWS documentation.
 references:
-  - name: "Terraform Standard Module Structure"
-    description: "HashiCorp's standard module structure is a file and directory layout we recommend for reusable modules distributed in separate repositories."
-    url: "https://www.terraform.io/docs/modules/index.html#standard-module-structure"
-  - name: "Terraform Module Requirements"
-    description: "HashiCorp's guidance on all the requirements for publishing a module. Meeting the requirements for publishing a module is extremely easy."
-    url: "https://www.terraform.io/docs/registry/modules/publish.html#requirements"
-  - name: "Terraform `random_integer` Resource"
-    description: "The resource random_integer generates random values from a given range, described by the min and max attributes of a given resource."
-    url: "https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer"
-  - name: "Terraform Version Pinning"
-    description: "The required_version setting can be used to constrain which versions of the Terraform CLI can be used with your configuration"
-    url: "https://www.terraform.io/docs/configuration/terraform.html#specifying-a-required-terraform-version"
+  - name: "Terraform `aws_iam_policy_document` data source"
+    description: "The Terraform data source that this module wraps."
+    url: "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document"
 
 # Short description of this project
 description: |-
-  This is `terraform-aws-iam-policy` project provides all the scaffolding for a typical well-built Cloud Posse module. It's a template repository you can
-  use when creating new repositories.
+  This `terraform-aws-iam-policy` module is a wrapper around the Terraform [aws_iam_policy_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)
+  data source, enhancing it to provide multiple ways to create an AWS IAM Policy document (as a JSON string).
+  It is primarily intended to simplify creating a policy in Terraform from external inputs. In particular,
+  if you want to specify a policy in a `tfvars` file as a Terraform object, or in YAML as part of an
+  [Atmos](https://atmos.tools/) stack (which is them turned into a Terraform object input), this module provides
+  an object type declaration to use for the input and then it can make the translation to JSON for you.
+  If you can supply the policy as JSON to begin with, or conveniently use the `aws_iam_policy_document`
+  Terraform data source directly, then this module is not helpful in your case.
+
+  NOTE: AWS's IAM policy document syntax allows for replacement of policy variables within a statement
+  using ${...}-style notation, which conflicts with Terraform's interpolation syntax. In order to use AWS
+  policy variables with this module, use &{...} notation for interpolations that should be processed
+  by AWS rather than by Terraform. Nevertheless, any ${...}-style notations that appear in strings passed into
+  this module (somehow escaping Terraform interpolation earlier) will be passed through to the policy document unchanged.
 
 # Introduction to the project
 #introduction: |-
@@ -77,7 +80,7 @@ usage: |-
     # Cloud Posse recommends pinning every module to a specific version
     # version = "x.x.x"
 
-    iam_policy = {
+    iam_policy = [{
       version = "2012-10-17"
       policy_id = "example"
       statements = [
@@ -108,7 +111,7 @@ usage: |-
           ]
         }
       ]
-    }
+    }]
 
   data "aws_iam_policy_document" "assume_role" {
     statement {
@@ -136,7 +139,8 @@ usage: |-
 # Example usage
 examples: |-
   Here is an example of using this module:
-  - [`examples/complete`](https://github.com/cloudposse/terraform-aws-iam-policy/) - complete example of using this module
+  - [`examples/complete`](https://github.com/cloudposse/terraform-aws-iam-policy/) - overly basic example of using this module
+  - [terraform-aws-helm-release](https://github.com/cloudposse/terraform-aws-helm-release) - realistic use of this module
 
 # How to get started quickly
 #quickstart: |-
@@ -151,5 +155,7 @@ include:
 contributors:
   - name: "Erik Osterman"
     github: "osterman"
+  - name: "Veronika Gnilitska"
+    github: "gberenice"
   - name: "RB"
     github: "nitrocode"

@@ -3,7 +3,7 @@ variable "region" {
 }
 
 variable "iam_policy" {
-  type = object({
+  type = list(object({
     policy_id = optional(string, null)
     version   = optional(string, null)
     statements = list(object({
@@ -27,7 +27,7 @@ variable "iam_policy" {
         identifiers = list(string)
       })), [])
     }))
-  })
+  }))
   description = <<-EOT
     IAM policy as Terraform object, compatible with `aws_iam_policy_document` except
     that `source_policy_documents` and `override_policy_documents` are not included.
@@ -38,7 +38,12 @@ variable "iam_policy" {
   default     = null
 }
 
-variable "iam_policy_statements" {
+variable "iam_policy_two" {
+  type        = any
+  description = "`iam_policy` as list of 2 objects"
+}
+
+variable "iam_policy_statements_map" {
   type = map(object({
     sid           = optional(string, null)
     effect        = optional(string, null)
@@ -66,6 +71,11 @@ variable "iam_policy_statements" {
     This can be used with or instead of the `var.iam_source_json_url`.
     EOT
   default     = null
+}
+
+variable "iam_policy_statements_list" {
+  type        = any
+  description = "IAM Policy Statements as List, not Map"
 }
 
 variable "iam_source_json_url" {

@@ -5,21 +5,54 @@ provider "aws" {
 module "iam_policy" {
   source = "../../"
 
-  iam_source_json_url = var.iam_source_json_url
-
   iam_policy         = var.iam_policy
   iam_policy_enabled = false
 
   context = module.this.context
 }
 
-module "iam_policy_statements" {
+module "iam_policy_two" {
+  source = "../../"
+
+  iam_policy         = var.iam_policy_two
+  iam_policy_enabled = false
+
+  context = module.this.context
+}
+
+module "iam_policy_three" {
+  source = "../../"
+
+  iam_source_policy_documents = [module.iam_policy_two.json]
+  iam_policy_enabled          = false
+
+  context = module.this.context
+}
+
+module "iam_policy_statements_map" {
+  source = "../../"
+
+  iam_policy_statements = var.iam_policy_statements_map
+  iam_policy_enabled    = false
+
+  context = module.this.context
+}
+
+module "iam_policy_statements_list" {
+  source = "../../"
+
+  iam_policy_statements = var.iam_policy_statements_list
+  iam_policy_enabled    = false
+
+  context = module.this.context
+}
+
+module "iam_url_policy" {
   source = "../../"
 
   iam_source_json_url = var.iam_source_json_url
 
-  iam_policy_statements = var.iam_policy_statements
-  iam_policy_enabled    = false
+  iam_policy_enabled = false
 
   context = module.this.context
 }
