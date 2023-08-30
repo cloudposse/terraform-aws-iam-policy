@@ -8,60 +8,19 @@ stage = "test"
 
 name = "example"
 
-iam_source_json_url = "https://raw.githubusercontent.com/awsdocs/amazon-lookoutmetrics-developer-guide/bf564cc29faab95d4171e0edec99e4165e55e954/sample-policies/datasource-s3.json"
+# See test/src/iam_policy_via_url.go
+iam_source_json_url = "https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.6.0/docs/install/iam_policy.json"
 
-# source: https://raw.githubusercontent.com/awsdocs/amazon-lookoutmetrics-developer-guide/main/sample-policies/datasource-s3.json
-# {
-#     "Version": "2012-10-17",
-#     "Statement": [
-#         {
-#             "Effect": "Allow",
-#             "Action": [
-#                 "s3:ListBucket",
-#                 "s3:GetBucketAcl"
-#             ],
-#             "Resource": [
-#                 "arn:aws:s3:::${BucketName}"
-#             ]
-#         },
-#         {
-#             "Effect": "Allow",
-#             "Action": [
-#                 "s3:GetObject",
-#                 "s3:GetBucketAcl"
-#             ],
-#             "Resource": [
-#                 "arn:aws:s3:::${BucketName}/*"
-#             ]
-#         },
-#         {
-#             "Effect": "Allow",
-#             "Action": [
-#                 "kms:Decrypt",
-#                 "kms:GenerateDataKey"
-#             ],
-#             "Resource": [
-#                 "arn:aws:kms:::key/*"
-#             ],
-#             "Condition": {
-#                 "ForAllValues:StringLike": {
-#                     "kms:ViaService": "s3.${Region}.amazonaws.com",
-#                     "kms:EncryptionContext:aws:s3:arn": [
-#                         "arn:aws:s3:::${BucketName}"
-#                     ]
-#                 }
-#             }
-#         }
-#     ]
-# }
-
-iam_policy = {
+iam_policy = [{
   statements = [
     {
-      sid       = "ListMyBucket"
-      effect    = "Allow"
-      actions   = ["s3:ListBucket"]
-      resources = ["arn:aws:s3:::test"]
+      sid     = "ListMyBucket"
+      effect  = "Allow"
+      actions = ["s3:ListBucket"]
+      resources = [
+        "arn:aws:s3:::s3_bucket_name/home/&{aws:username}",
+        "arn:aws:s3:::s3_bucket_name/home/&{aws:username}/*",
+      ]
       conditions = [
         {
           test     = "StringLike"
@@ -84,13 +43,52 @@ iam_policy = {
       ]
     }
   ]
-}
+}]
 
-iam_policy_statements = {
+iam_policy_two = [{
+  statements = [
+    {
+      sid     = "ListMyBucket"
+      effect  = "Allow"
+      actions = ["s3:ListBucket"]
+      resources = [
+        "arn:aws:s3:::s3_bucket_name/home/&{aws:username}",
+        "arn:aws:s3:::s3_bucket_name/home/&{aws:username}/*",
+      ]
+      conditions = [
+        {
+          test     = "StringLike"
+          variable = "cloudwatch:namespace"
+          values   = ["x-*"]
+        },
+      ]
+  }] },
+  { statements = [
+    {
+      sid       = "WriteMyBucket"
+      effect    = "Allow"
+      actions   = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
+      resources = ["arn:aws:s3:::test/*"]
+      conditions = [
+        {
+          test     = "StringLike"
+          variable = "cloudwatch:namespace"
+          values   = ["x-*"]
+        },
+      ]
+    }
+  ] }
+]
+
+
+iam_policy_statements_map = {
   ListMyBucket = {
-    effect    = "Allow"
-    actions   = ["s3:ListBucket"]
-    resources = ["arn:aws:s3:::test"]
+    effect  = "Allow"
+    actions = ["s3:ListBucket"]
+    resources = [
+      "arn:aws:s3:::s3_bucket_name/home/&{aws:username}",
+      "arn:aws:s3:::s3_bucket_name/home/&{aws:username}/*",
+    ]
     conditions = [
       {
         test     = "StringLike"
@@ -112,3 +110,35 @@ iam_policy_statements = {
     ]
   }
 }
+
+iam_policy_statements_list = [
+  {
+    sid     = "ListMyBucket"
+    effect  = "Allow"
+    actions = ["s3:ListBucket"]
+    resources = [
+      "arn:aws:s3:::s3_bucket_name/home/&{aws:username}",
+      "arn:aws:s3:::s3_bucket_name/home/&{aws:username}/*",
+    ]
+    conditions = [
+      {
+        test     = "StringLike"
+        variable = "cloudwatch:namespace"
+        values   = ["x-*"]
+      },
+    ]
+  },
+  {
+    sid       = "WriteMyBucket"
+    effect    = "Allow"
+    actions   = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
+    resources = ["arn:aws:s3:::test/*"]
+    conditions = [
+      {
+        test     = "StringLike"
+        variable = "cloudwatch:namespace"
+        values   = ["x-*"]
+      },
+    ]
+  }
+]

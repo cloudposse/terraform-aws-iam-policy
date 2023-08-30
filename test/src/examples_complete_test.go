@@ -1,50 +1,99 @@
 package test
 
 import (
-	"math/rand"
-	"strconv"
-	"testing"
-	"time"
-
+	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	testStructure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"regexp"
+	"strings"
+	"testing"
 )
+
+func cleanup(t *testing.T, terraformOptions *terraform.Options, tempTestFolder string) {
+	terraform.Destroy(t, terraformOptions)
+	os.RemoveAll(tempTestFolder)
+}
 
 // Test the Terraform module in examples/complete using Terratest.
 func TestExamplesComplete(t *testing.T) {
 	t.Parallel()
-
-	rand.Seed(time.Now().UnixNano())
-	randID := strconv.Itoa(rand.Intn(100000))
+	randID := strings.ToLower(random.UniqueId())
 	attributes := []string{randID}
+
+	rootFolder := "../../"
+	terraformFolderRelativeToRoot := "examples/complete"
+	varFiles := []string{"fixtures.us-east-2.tfvars"}
+
+	tempTestFolder := testStructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
 
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
-		TerraformDir: "../../examples/complete",
+		TerraformDir: tempTestFolder,
 		Upgrade:      true,
 		// Variables to pass to our Terraform code using -var-file options
-		VarFiles: []string{"fixtures.us-east-2.tfvars"},
-		// We always include a random attribute so that parallel tests
-		// and AWS resources do not interfere with each other
+		VarFiles: varFiles,
 		Vars: map[string]interface{}{
 			"attributes": attributes,
 		},
 	}
+
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created
-	defer terraform.Destroy(t, terraformOptions)
+	defer cleanup(t, terraformOptions, tempTestFolder)
 
 	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Run `terraform output` to get the value of an output variable
 	jsonPolicy := terraform.OutputRequired(t, terraformOptions, "json")
-	oldJsonPolicy := terraform.OutputRequired(t, terraformOptions, "deprecated_json")
+	jsonTwoPolicy := terraform.OutputRequired(t, terraformOptions, "json_two")
+	jsonThreePolicy := terraform.OutputRequired(t, terraformOptions, "json_three")
+	oldJsonPolicyMap := terraform.OutputRequired(t, terraformOptions, "deprecated_json_map")
+	oldJsonPolicyList := terraform.OutputRequired(t, terraformOptions, "deprecated_json_list")
+	urlPolicy := terraform.OutputRequired(t, terraformOptions, "url_policy_json")
 
 	// Verify we're getting back the outputs we expect
-	assert.Greater(t, len(jsonPolicy), 0)
-	assert.Greater(t, len(oldJsonPolicy), 0)
-	assert.Equal(t, jsonPolicy, oldJsonPolicy, "jsonPolicy and oldJsonPolicy should match")
+	assert.Equal(t, jsonPolicy, jsonTwoPolicy, "jsonPolicy and jsonTwoPolicy should match")
+	assert.Equal(t, jsonTwoPolicy, jsonThreePolicy, "jsonThreePolicy mismatch indicates some kind of re-interpolation issue")
+	assert.Equal(t, oldJsonPolicyMap, oldJsonPolicyList, "oldJsonPolicyMap and oldJsonPolicyList should match")
+	assert.Equal(t, jsonPolicy, oldJsonPolicyList, "jsonPolicy and oldJsonPolicyList should match")
 
-	expectedPolicy := "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"s3:ListBucket\",\n        \"s3:GetBucketAcl\"\n      ],\n      \"Resource\": [\n        \"arn:aws:s3:::${BucketName}\"\n      ]\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"s3:GetObject\",\n        \"s3:GetBucketAcl\"\n      ],\n      \"Resource\": [\n        \"arn:aws:s3:::${BucketName}/*\"\n      ]\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"kms:Decrypt\",\n        \"kms:GenerateDataKey\"\n      ],\n      \"Resource\": [\n        \"arn:aws:kms:::key/*\"\n      ],\n      \"Condition\": {\n        \"ForAllValues:StringLike\": {\n          \"kms:EncryptionContext:aws:s3:arn\": [\n            \"arn:aws:s3:::${BucketName}\"\n          ],\n          \"kms:ViaService\": [\n            \"s3.${Region}.amazonaws.com\"\n          ]\n        }\n      }\n    },\n    {\n      \"Sid\": \"ListMyBucket\",\n      \"Effect\": \"Allow\",\n      \"Action\": \"s3:ListBucket\",\n      \"Resource\": \"arn:aws:s3:::test\",\n      \"Condition\": {\n        \"StringLike\": {\n          \"cloudwatch:namespace\": \"x-*\"\n        }\n      }\n    },\n    {\n      \"Sid\": \"WriteMyBucket\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"s3:PutObject\",\n        \"s3:GetObject\",\n        \"s3:DeleteObject\"\n      ],\n      \"Resource\": \"arn:aws:s3:::test/*\",\n      \"Condition\": {\n        \"StringLike\": {\n          \"cloudwatch:namespace\": \"x-*\"\n        }\n      }\n    }\n  ]\n}"
-	assert.Equal(t, expectedPolicy, jsonPolicy, "jsonPolicy should match expected policy")
+	assert.Equal(t, expectedUrlPolicy, urlPolicy, "url_policy_json should match expected policy")
+}
+
+func TestExamplesCompleteDisabled(t *testing.T) {
+	t.Parallel()
+	randID := strings.ToLower(random.UniqueId())
+	attributes := []string{randID}
+
+	rootFolder := "../../"
+	terraformFolderRelativeToRoot := "examples/complete"
+	varFiles := []string{"fixtures.us-east-2.tfvars"}
+
+	tempTestFolder := testStructure.CopyTerraformFolderToTemp(t, rootFolder, terraformFolderRelativeToRoot)
+
+	terraformOptions := &terraform.Options{
+		// The path to where our Terraform code is located
+		TerraformDir: tempTestFolder,
+		Upgrade:      true,
+		// Variables to pass to our Terraform code using -var-file options
+		VarFiles: varFiles,
+		Vars: map[string]interface{}{
+			"attributes": attributes,
+			"enabled":    "false",
+		},
+	}
+
+	// At the end of the test, run `terraform destroy` to clean up any resources that were created
+	defer cleanup(t, terraformOptions, tempTestFolder)
+
+	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
+	results := terraform.InitAndApply(t, terraformOptions)
+
+	// Should complete successfully without creating or changing any resources.
+	// Extract the "Resources:" section of the output to make the error message more readable.
+	re := regexp.MustCompile(`Resources: [^.]+\.`)
+	match := re.FindString(results)
+	assert.Equal(t, "Resources: 0 added, 0 changed, 0 destroyed.", match, "Re-applying the same configuration should not change any resources")
 }
