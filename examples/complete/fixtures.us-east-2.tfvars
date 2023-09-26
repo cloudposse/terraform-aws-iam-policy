@@ -21,6 +21,9 @@ iam_policy = [{
         "arn:aws:s3:::s3_bucket_name/home/&{aws:username}",
         "arn:aws:s3:::s3_bucket_name/home/&{aws:username}/*",
       ]
+      # We include an empty `principals` attribute to make this object different than the following object,
+      # which makes `statements` a tuple instead of a list.
+      principals = []
       conditions = [
         {
           test     = "StringLike"
@@ -48,9 +51,10 @@ iam_policy = [{
 iam_policy_two = [{
   statements = [
     {
-      sid     = "ListMyBucket"
-      effect  = "Allow"
-      actions = ["s3:ListBucket"]
+      sid        = "ListMyBucket"
+      effect     = "Allow"
+      actions    = ["s3:ListBucket"]
+      principals = []
       resources = [
         "arn:aws:s3:::s3_bucket_name/home/&{aws:username}",
         "arn:aws:s3:::s3_bucket_name/home/&{aws:username}/*",
@@ -83,8 +87,9 @@ iam_policy_two = [{
 
 iam_policy_statements_map = {
   ListMyBucket = {
-    effect  = "Allow"
-    actions = ["s3:ListBucket"]
+    effect     = "Allow"
+    actions    = ["s3:ListBucket"]
+    principals = []
     resources = [
       "arn:aws:s3:::s3_bucket_name/home/&{aws:username}",
       "arn:aws:s3:::s3_bucket_name/home/&{aws:username}/*",
@@ -113,9 +118,10 @@ iam_policy_statements_map = {
 
 iam_policy_statements_list = [
   {
-    sid     = "ListMyBucket"
-    effect  = "Allow"
-    actions = ["s3:ListBucket"]
+    sid        = "ListMyBucket"
+    effect     = "Allow"
+    actions    = ["s3:ListBucket"]
+    principals = []
     resources = [
       "arn:aws:s3:::s3_bucket_name/home/&{aws:username}",
       "arn:aws:s3:::s3_bucket_name/home/&{aws:username}/*",
