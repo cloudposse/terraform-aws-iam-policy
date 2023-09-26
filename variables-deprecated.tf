@@ -23,7 +23,7 @@ locals {
   # If it is a list, the SID is allowed to be null.
   deprecated_statements_keys   = try(keys(var.iam_policy_statements), [null])
   deprecated_statements_values = try(values(var.iam_policy_statements), var.iam_policy_statements)
-  deprecated_statements_with_sid = !local.enabled || var.iam_policy_statements == null ? [] : [
+  deprecated_statements_with_sid = [
     for i, v in local.deprecated_statements_values :
     merge(v, lookup(v, "sid", null) == null ? { sid = element(local.deprecated_statements_keys, i) } : {})
   ]
