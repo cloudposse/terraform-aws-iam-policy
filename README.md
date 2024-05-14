@@ -40,7 +40,7 @@ Terraform data source directly, then this module is not helpful in your case.
 > AWS's IAM policy document syntax allows for replacement of policy variables within a statement
 > using `${...}`-style notation, which conflicts with Terraform's interpolation syntax. In order to use AWS
 > policy variables with this module, use `&{...}` notation for interpolations that should be processed
-> by AWS rather than by Terraform. Nevertheless, any ${...}-style notations that appear in strings passed into
+> by AWS rather than by Terraform. Nevertheless, any `${...}`-style notations that appear in strings passed into
 > this module (somehow escaping Terraform interpolation earlier) will be passed through to the policy document unchanged.
 
 
