@@ -5,3 +5,4 @@ repository:
   description: Create an IAM policy from Terraform input
   homepage: https://cloudposse.com/accelerate
   topics: ""
+
