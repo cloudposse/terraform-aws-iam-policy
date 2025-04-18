@@ -52,7 +52,8 @@ variable "iam_policy_enabled" {
 variable "role_names" {
   type        = list(string)
   description = <<-EOT
-    IAM role names to attach the policy to
+    IAM role names to attach the policy to. Use iam_policy_enabled to toggle between managed or inline.
+    EOT
   default     = null
 }
 
