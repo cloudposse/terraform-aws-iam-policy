@@ -55,6 +55,20 @@ variable "iam_source_json_url" {
   default     = null
 }
 
+variable "role_names" {
+  type        = list(string)
+  description = <<-EOT
+    Role names to attach the policy to
+  default     = null
+}
+
+variable "managed_policy_enabled" {
+  type        = bool
+  description = <<-EOT
+    Whether to create an IAM managed policy or inline policy. If false, provide role_names is required to attach the policy.
+  default     = true
+}
+
 variable "iam_source_policy_documents" {
   type        = list(string)
   description = <<-EOT
