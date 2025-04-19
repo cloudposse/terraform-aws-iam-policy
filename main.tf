@@ -96,7 +96,7 @@ resource "aws_iam_role_policy_attachment" "default" {
   for_each = local.iam_policy_enabled && var.role_names != null ? toset(var.role_names) : toset([])
 
   role       = each.value
-  policy_arn = one(aws_iam_policy.policy[*].arn)
+  policy_arn = one(aws_iam_policy.default[*].arn)
 }
 
 resource "aws_iam_role_policy" "default" {
