@@ -41,8 +41,20 @@ variable "description" {
 
 variable "iam_policy_enabled" {
   type        = bool
-  description = "If set to `true` will create the IAM policy in AWS, otherwise will only output policy as JSON."
+  description = <<-EOT
+    Whether to create the IAM managed policy in AWS or not.
+    If false without role_names, it will output the JSON policy,
+    with role_names, it will attach the inline policy.
+    EOT
   default     = false
+}
+
+variable "role_names" {
+  type        = list(string)
+  description = <<-EOT
+    IAM role names to attach the policy to. Use iam_policy_enabled to toggle between managed or inline.
+    EOT
+  default     = null
 }
 
 variable "iam_source_json_url" {

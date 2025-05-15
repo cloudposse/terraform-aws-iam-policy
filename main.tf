@@ -9,6 +9,12 @@ locals {
   source_policy_documents = compact(concat([local.iam_source_json_url_body], data.aws_iam_policy_document.policy[*].json, local.iam_source_policy_documents))
 
   policy = concat(local.deprecated_policy, var.iam_policy)
+
+  iam_policy_enabled = local.enabled && var.iam_policy_enabled
+
+  iam_inline_policy_enabled = local.enabled && !var.iam_policy_enabled
+
+  policy_json = one(data.aws_iam_policy_document.this[*].json)
 }
 
 data "http" "iam_source_json_url" {
@@ -78,10 +84,26 @@ data "aws_iam_policy_document" "this" {
 }
 
 resource "aws_iam_policy" "default" {
-  count = local.enabled && var.iam_policy_enabled ? 1 : 0
+  count = local.iam_policy_enabled ? 1 : 0
 
   name        = module.this.id
   description = var.description
-  policy      = one(data.aws_iam_policy_document.this[*].json)
+  policy      = local.policy_json
   tags        = module.this.tags
+}
+
+resource "aws_iam_role_policy_attachment" "default" {
+  for_each = local.iam_policy_enabled && var.role_names != null ? toset(var.role_names) : toset([])
+
+  role       = each.value
+  policy_arn = one(aws_iam_policy.default[*].arn)
+}
+
+resource "aws_iam_role_policy" "default" {
+  for_each = local.iam_inline_policy_enabled && var.role_names != null ? toset(var.role_names) : toset([])
+
+  name = module.this.id
+  role = each.value
+
+  policy = local.policy_json
 }
