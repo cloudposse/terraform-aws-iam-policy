@@ -51,7 +51,7 @@ Terraform data source directly, then this module is not helpful in your case.
 >
 > <details>
 > <summary><strong>Watch demo of using Atmos with Terraform</strong></summary>
-> <img src="https://github.com/cloudposse/atmos/blob/master/docs/demo.gif?raw=true"/><br/>
+> <img src="https://github.com/cloudposse/atmos/blob/main/docs/demo.gif?raw=true"/><br/>
 > <i>Example of running <a href="https://atmos.tools"><code>atmos</code></a> to manage infrastructure from our <a href="https://atmos.tools/quick-start/">Quick Start</a> tutorial.</i>
 > </detalis>
 
@@ -186,6 +186,8 @@ Available targets:
 | Name | Type |
 |------|------|
 | [aws_iam_policy.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role_policy.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy_attachment.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_policy_document.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [http_http.iam_source_json_url](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
@@ -204,7 +206,7 @@ Available targets:
 | <a name="input_environment"></a> [environment](#input\_environment) | ID element. Usually used for region e.g. 'uw2', 'us-west-2', OR role 'prod', 'staging', 'dev', 'UAT' | `string` | `null` | no |
 | <a name="input_iam_override_policy_documents"></a> [iam\_override\_policy\_documents](#input\_iam\_override\_policy\_documents) | List of IAM policy documents (as JSON strings) that are merged together into the exported document with higher precedence.<br/>In merging, statements with non-blank SIDs will override statements with the same SID<br/>from earlier documents in the list and from other "source" documents. | `list(string)` | `null` | no |
 | <a name="input_iam_policy"></a> [iam\_policy](#input\_iam\_policy) | IAM policy as list of Terraform objects, compatible with Terraform `aws_iam_policy_document` data source<br/>except that `source_policy_documents` and `override_policy_documents` are not included.<br/>Use inputs `iam_source_policy_documents` and `iam_override_policy_documents` for that. | <pre>list(object({<br/>    policy_id = optional(string, null)<br/>    version   = optional(string, null)<br/>    statements = list(object({<br/>      sid           = optional(string, null)<br/>      effect        = optional(string, null)<br/>      actions       = optional(list(string), null)<br/>      not_actions   = optional(list(string), null)<br/>      resources     = optional(list(string), null)<br/>      not_resources = optional(list(string), null)<br/>      conditions = optional(list(object({<br/>        test     = string<br/>        variable = string<br/>        values   = list(string)<br/>      })), [])<br/>      principals = optional(list(object({<br/>        type        = string<br/>        identifiers = list(string)<br/>      })), [])<br/>      not_principals = optional(list(object({<br/>        type        = string<br/>        identifiers = list(string)<br/>      })), [])<br/>    }))<br/>  }))</pre> | `[]` | no |
-| <a name="input_iam_policy_enabled"></a> [iam\_policy\_enabled](#input\_iam\_policy\_enabled) | If set to `true` will create the IAM policy in AWS, otherwise will only output policy as JSON. | `bool` | `false` | no |
+| <a name="input_iam_policy_enabled"></a> [iam\_policy\_enabled](#input\_iam\_policy\_enabled) | Whether to create the IAM managed policy in AWS or not.<br/>If false without role\_names, it will output the JSON policy,<br/>with role\_names, it will attach the inline policy. | `bool` | `false` | no |
 | <a name="input_iam_policy_id"></a> [iam\_policy\_id](#input\_iam\_policy\_id) | Deprecated: Use `iam_policy` instead: ID for the policy document when using `iam_policy_statements`. | `string` | `null` | no |
 | <a name="input_iam_policy_statements"></a> [iam\_policy\_statements](#input\_iam\_policy\_statements) | Deprecated: Use `iam_policy` instead.<br/>List or Map of IAM policy statements to use in the policy.<br/>This can be used with `iam_source_policy_documents` and `iam_override_policy_documents`<br/>and with or instead of `iam_source_json_url`. | `any` | `[]` | no |
 | <a name="input_iam_source_json_url"></a> [iam\_source\_json\_url](#input\_iam\_source\_json\_url) | URL of the IAM policy (in JSON format) to download and use as `source_json` argument.<br/>This is useful when using a 3rd party service that provides their own policy.<br/>Statements in this policy will be overridden by statements with the same SID in `iam_override_policy_documents`. | `string` | `null` | no |
@@ -217,6 +219,7 @@ Available targets:
 | <a name="input_name"></a> [name](#input\_name) | ID element. Usually the component or solution name, e.g. 'app' or 'jenkins'.<br/>This is the only ID element not also included as a `tag`.<br/>The "name" tag is set to the full `id` string. There is no tag with the value of the `name` input. | `string` | `null` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | ID element. Usually an abbreviation of your organization name, e.g. 'eg' or 'cp', to help ensure generated IDs are globally unique | `string` | `null` | no |
 | <a name="input_regex_replace_chars"></a> [regex\_replace\_chars](#input\_regex\_replace\_chars) | Terraform regular expression (regex) string.<br/>Characters matching the regex will be removed from the ID elements.<br/>If not set, `"/[^a-zA-Z0-9-]/"` is used to remove all characters other than hyphens, letters and digits. | `string` | `null` | no |
+| <a name="input_role_names"></a> [role\_names](#input\_role\_names) | IAM role names to attach the policy to. Use iam\_policy\_enabled to toggle between managed or inline. | `list(string)` | `null` | no |
 | <a name="input_stage"></a> [stage](#input\_stage) | ID element. Usually used to indicate role, e.g. 'prod', 'staging', 'source', 'build', 'test', 'deploy', 'release' | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Additional tags (e.g. `{'BusinessUnit': 'XYZ'}`).<br/>Neither the tag keys nor the tag values will be modified by this module. | `map(string)` | `{}` | no |
 | <a name="input_tenant"></a> [tenant](#input\_tenant) | ID element \_(Rarely used, not included by default)\_. A customer identifier, indicating who this instance of a resource is for | `string` | `null` | no |
@@ -360,7 +363,7 @@ All other trademarks referenced herein are the property of their respective owne
 
 ## Copyrights
 
-Copyright © 2021-2024 [Cloud Posse, LLC](https://cloudposse.com)
+Copyright © 2021-2025 [Cloud Posse, LLC](https://cloudposse.com)
 
 
 
